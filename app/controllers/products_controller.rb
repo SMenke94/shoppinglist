@@ -5,7 +5,7 @@ class ProductsController < ApplicationController
   # GET /products.json
   def index
     @products = current_user.products.order(:position)
-    prices = @products.map { |product| product.price }
+    prices = @products.map(&:price)
     @sum = prices.sum
   end
 
@@ -19,7 +19,14 @@ class ProductsController < ApplicationController
 
   def send_product_mail
     @user = current_user
-    ProductMailer.with(product: @product, user: @user).product_info.deliver_now
+    email = ProductMailer.with(product: @product, user: @user).product_info
+
+    if email.deliver_later
+      flash[:notice] = 'Email was sent.'
+    else
+      flash[:notice] = 'Email could not be sent. Please try again.'
+    end
+
     redirect_to products_path
   end
 

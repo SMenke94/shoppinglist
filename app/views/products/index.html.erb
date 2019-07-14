@@ -1,7 +1,7 @@
 <%- model_class = Product -%>
 <div class="page-header flex-header">
   <h1>My <%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
-  <h4><%= @sum %> €</h4>
+  <h4><%= sprintf "%.2f", @sum %> €</h4>
   <%= link_to t('.new', :default => t("helpers.links.new")), new_product_path, :class => 'btn btn-primary btn-white-text' %>
 </div>
 <table class="table table-striped">
@@ -30,8 +30,10 @@
           <%= sprintf "%.2f", product.price %> €
         </td>
         <td class="text-right">
-          <%= link_to 'Request more info', 
-                      send_product_mail_path(product), :class => 'btn btn-warning btn-xs btn-email-margin' %>
+          <%= link_to 'Request more info',
+                      send_product_mail_product_path(product),
+                      :method => :post,
+                      :class => 'btn btn-warning btn-xs btn-email-margin' %>
           <br>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),
                       edit_product_path(product), :class => 'btn btn-default btn-xs' %>

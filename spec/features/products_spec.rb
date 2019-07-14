@@ -1,13 +1,25 @@
 require 'rails_helper'
 
-RSpec.describe 'Products', type: :feature do
-  let(:user) { FactoryBot.create(:user) }
-  let(:product1) { FactoryBot.create(:product1) }
-  let!(:product2) { FactoryBot.create(:product2) }
+RSpec.describe 'Products' do
+  let(:user1) { User.create(email: 'admin@test.de', password: '123456', role: 1) }
+  let(:user2) { User.create(email: 'user@test.de', password: '123456', role: 0) }
+  let!(:shop) { Shop.create(name: 'Amazon') }
+  let!(:product1) { Product.create(
+                    name: 'Buch',
+                    description: 'Ein schönes Buch',
+                    price: '9.99',
+                    user: user1,
+                    shop: shop) }
+  let!(:product2) { Product.create(
+                    name: 'Stift',
+                    description: 'Ein schöner Stift',
+                    price: '1.99',
+                    user: user2,
+                    shop: shop) }
 
   context '.index' do
     before(:each) do
-      sign_in(user)
+      sign_in(user1)
       visit '/products'
     end
 
@@ -26,7 +38,7 @@ RSpec.describe 'Products', type: :feature do
 
   context '.create' do
     before(:each) do
-      sign_in(user)
+      sign_in(user1)
       visit '/products'
     end
 
@@ -37,9 +49,38 @@ RSpec.describe 'Products', type: :feature do
 
     it 'assigns new products to signed in user' do
       create_new_product
-      expect(Product.last.user).to eq(user)
+      expect(Product.last.user).to eq(user1)
     end
   end
+
+  context '.update' do
+    before(:each) do
+      sign_in(user1)
+      visit '/products'
+    end
+
+    it 'can update a product' do
+      click_link 'Edit'
+      fill_in 'Name', with: 'Buch updated'
+      click_button 'Update Product'
+      expect(page).to have_content('Product was successfully updated.')
+    end
+  end
+
+  # context '.destroy' do
+  #   it 'can delete a product' do
+  #     delete_button = find(:xpath, '//*[@id="product_1"]/td[6]/a[3]')
+  #     delete_button.click
+  #     expect(page).to have_content('Product was successfully destroyed.')
+  #   end
+  # end
+
+  # context '.product_mail' do
+  #   it 'can request more information about the product' do
+  #     click_link 'Request more info'
+  #     expect(page).to have_content('Email was sent.')
+  #   end
+  # end
 end
 
 private
@@ -51,3 +92,5 @@ def create_new_product
   fill_in 'Price', with: '1.99'
   click_button 'Create Product'
 end
+
+
